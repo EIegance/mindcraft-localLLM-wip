@@ -4,8 +4,6 @@ import { getCommandDocs } from './commands/index.js';
 import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
-import { join } from 'path';
-
 
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
@@ -19,8 +17,7 @@ export class Prompter {
         this.agent = agent;
         this.profile = JSON.parse(readFileSync(fp, 'utf8'));
         this.convo_examples = null;
-        this.codingExamples = [];
-        this.embeddings = {};
+        this.coding_examples = null;
 
         let name = this.profile.name;
         let chat = this.profile.model;
@@ -96,64 +93,13 @@ export class Prompter {
     }
 
     async initExamples() {
-        console.log('Loading examples...');
+        console.log('Loading examples...')
         this.convo_examples = new Examples(this.embedding_model);
         await this.convo_examples.load(this.profile.conversation_examples);
         this.coding_examples = new Examples(this.embedding_model);
         await this.coding_examples.load(this.profile.coding_examples);
-        
-        await this.loadCodingExamples();
         console.log('Examples loaded.');
     }
-
-    async loadCodingExamples() {
-        const ragInfoPath = join('src', 'agent', 'library', 'raginfo');
-        const files = ['codingexamples1.json', 'codingexamples2.json'];
-        
-        for (const file of files) {
-            const filePath = join(ragInfoPath, file);
-            const content = JSON.parse(readFileSync(filePath, 'utf8'));
-            this.codingExamples = this.codingExamples.concat(content);
-        }
-
-        for (const example of this.codingExamples) {
-            const text = example.description + this.turnsToText(example.conversation);
-            this.embeddings[example.description] = await this.embedding_model.embed(text);
-        }
-    }
-
-    turnsToText(turns) {
-        if (!turns || !Array.isArray(turns)) {
-            return '';
-        }
-        return turns.map(turn => `${turn.role}: ${turn.content}`).join('\n');
-    }
-
-    async getRelevantExamples(query, topK = 5) {
-        const queryEmbedding = await this.embedding_model.embed(query);
-        const similarities = Object.entries(this.embeddings).map(([description, embedding]) => ({
-            description,
-            similarity: cosineSimilarity(queryEmbedding, embedding)
-        }));
-        similarities.sort((a, b) => b.similarity - a.similarity);
-        return similarities.slice(0, topK);
-    }
-
-    async promptCoding(messages) {
-        let prompt = this.profile.coding;
-        prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
-        
-        const relevantExamples = await this.getRelevantExamples(messages[messages.length - 1].content);
-        const embedInfoExamples = relevantExamples.map(info => `Description: ${info.description}\nSimilarity: ${info.similarity}`).join('\n\n');
-        
-        prompt += '\n\nRelevant code examples:\n' + embedInfoExamples;
-        
-        return await this.chat_model.sendRequest(messages, prompt);
-    }
-
-
-
-
 
     async replaceStrings(prompt, messages, examples=null, prev_memory=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
@@ -178,6 +124,10 @@ export class Prompter {
             prompt = prompt.replaceAll('$TO_SUMMARIZE', stringifyTurns(to_summarize));
         if (prompt.includes('$CONVO'))
             prompt = prompt.replaceAll('$CONVO', 'Recent conversation:\n' + stringifyTurns(messages));
+        if (prompt.includes('$SELF_PROMPT')) {
+            let self_prompt = this.agent.self_prompter.on ? `Use this self-prompt to guide your behavior: "${this.agent.self_prompter.prompt}"\n` : '';
+            prompt = prompt.replaceAll('$SELF_PROMPT', self_prompt);
+        }
         if (prompt.includes('$LAST_GOALS')) {
             let goal_text = '';
             for (let goal in last_goals) {
