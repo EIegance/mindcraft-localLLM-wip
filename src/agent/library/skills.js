@@ -91,64 +91,6 @@ export async function craftRecipe(bot, itemName, num=1) {
     return true;
 }
 
-export async function craftItem(bot, itemName, num=1) {
-    /**
-     * Attempt to craft the given item name from a recipe. May craft many items.
-     * @param {MinecraftBot} bot, reference to the minecraft bot.
-     * @param {string} itemName, the item name to craft.
-     * @returns {Promise<boolean>} true if the recipe was crafted, false otherwise.
-     * @example
-     * await skills.craftRecipe(bot, "stick");
-     **/
-    let placedTable = false;
-
-    // get recipes that don't require a crafting table
-    let recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, null); 
-    let craftingTable = null;
-    if (!recipes || recipes.length === 0) {
-
-        // Look for crafting table
-        craftingTable = world.getNearestBlock(bot, 'crafting_table', 8);
-        if (craftingTable === null){
-
-            // Try to place crafting table
-            let hasTable = world.getInventoryCounts(bot)['crafting_table'] > 0;
-            if (hasTable) {
-                let pos = world.getNearestFreeSpace(bot, 1, 6);
-                await placeBlock(bot, 'crafting_table', pos.x, pos.y, pos.z);
-                craftingTable = world.getNearestBlock(bot, 'crafting_table', 8);
-                if (craftingTable) {
-                    recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
-                    placedTable = true;
-                }
-            }
-            else {
-                log(bot, `You either do not have enough resources to craft ${itemName} or it requires a crafting table.`)
-                return false;
-            }
-        }
-        else {
-            recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
-        }
-    }
-    if (!recipes || recipes.length === 0) {
-        log(bot, `You do not have the resources to craft a ${itemName}.`);
-        if (placedTable) {
-            await collectBlock(bot, 'crafting_table', 1);
-        }
-        return false;
-    }
-
-    const recipe = recipes[0];
-    console.log('crafting...');
-    await bot.craft(recipe, num, craftingTable);
-    log(bot, `Successfully crafted ${itemName}, you now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
-    if (placedTable) {
-        await collectBlock(bot, 'crafting_table', 1);
-    }
-    return true;
-}
-
 export async function smeltItem(bot, itemName, num=1) {
     /**
      * Puts 1 coal in furnace and smelts the given item name, waits until the furnace runs out of fuel or input items.
@@ -540,6 +482,10 @@ export async function breakBlockAt(bot, x, y, z) {
 
 
 export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dontCheat=false) {
+        //band-aid fix for LLM hallucinations
+        if (blockType === 'air') {
+            return breakBlockAt(bot, x, y, z);
+        }
     /**
      * Place the given block type at the given position. It will build off from any adjacent blocks. Will fail if there is a block in the way or nothing to build off of.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -1120,3 +1066,12 @@ export async function activateNearestBlock(bot, type) {
     log(bot, `Activated ${type} at x:${block.position.x.toFixed(1)}, y:${block.position.y.toFixed(1)}, z:${block.position.z.toFixed(1)}.`);
     return true;
 }
+
+//band-aid fix for hallucinations
+export function digBlock(...args) {
+    return breakBlockAt(...args);
+}
+
+export const moveTo = (...args) => goToPosition(...args);
+export const goTo = (...args) => goToPosition(...args);
+export const craftItem = (...args) => craftRecipe(...args);

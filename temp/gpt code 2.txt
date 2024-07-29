@@ -1,0 +1,675 @@
+{ "role": "user", "content": "Miner_123: mine down 6 blocks then mine out a space underground" },
+
+{ "role": "assistant", "content": "Certainly! I'll mine down 6 blocks and then excavate an underground space. Let's get started on that subterranean project. !newAction" }
+
+"""
+const position = world.getPosition(bot);
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+
+// Mine down 6 blocks
+for (let i = 0; i < 6; i++) {
+    await skills.breakBlockAt(bot, startX, startY - i, startZ);
+}
+
+// Move to the bottom of the hole
+await skills.goToPosition(bot, startX, startY - 6, startZ);
+
+// Mine out a space underground (e.g., 3x7x4)
+const undergroundHeight = 3;
+const undergroundWidth = 7;
+const undergroundDepth = 4;
+
+for (let x = 0; x < undergroundWidth; x++) {
+    for (let y = 0; y < undergroundHeight; y++) {
+        for (let z = 0; z < undergroundDepth; z++) {
+            await skills.breakBlockAt(bot, startX + x, startY - 6 + y, startZ + z);
+        }
+    }
+}"""
+
+    role: 'user',
+    content: 'Miner_123: Make a grand (large) desert themed build with a cool design and natural decorations, use pillars spaced apart by 1 block and make sure it has a roof and foundation'
+  },
+  {
+    role: 'assistant',
+    content: "Alright, I'll work on an even larger grand desert-themed build with pillars spaced apart by 1 block, natural decorations, a roof, and a foundation. !newAction"
+  },
+
+"""
+async function buildGrandDesertStructure() {
+    // Base and Foundation Coordinates
+    const position = world.getPosition(bot);
+    const startX = position.x;
+    const startY = position.y;
+    const startZ = position.z;
+    const width = 20;
+    const length = 20;
+    const height = 10;
+
+    // Create Foundation
+    for (let x = startX; x <= startX + width; x++) {
+        for (let z = startZ; z <= startZ + length; z++) {
+            await skills.placeBlock(bot, 'sandstone', x, startY, z);
+        }
+    }
+
+    // Create Pillars
+    for (let x = startX; x <= startX + width; x += 2) {
+        for (let z = startZ; z <= startZ + length; z += 2) {
+            for (let y = startY + 1; y <= startY + height; y++) {
+                await skills.placeBlock(bot, "chiseled_sandstone", x, y, z);
+            }
+        }
+    }
+
+    // Create Roof
+    const roofY = startY + height + 1;
+    for (let x = startX; x <= startX + width; x++) {
+        for (let z = startZ; z <= startZ + length; z++) {
+            await skills.placeBlock(bot, 'sandstone', x, roofY, z);
+        }
+    }
+
+    // Add Natural Decorations
+    const decorationItems = ["oak_leaves"];
+    for (const item of decorationItems) {
+        for (let x = 0; x < width / 2; x++) {
+            for (let z = 0; z < length / 2; z++) {
+                await skills.placeBlock(bot, item, startX + x * 4, startY + 1, startZ + z * 4);
+            }
+        }
+    }
+}
+
+await buildGrandDesertStructure();"""
+
+{
+  role: 'user',
+    content: 'Miner_123: build a nice desert style home'
+  },
+  {
+    role: 'assistant',
+    content: 'Building a nice desert-style home now! !newAction'
+  },
+
+
+"""
+    const position = world.getPosition(bot);
+    const startX = position.x;
+    const startY = position.y;
+    const startZ = position.z;
+
+// Function to place a rectangular foundation of sandstone
+async function buildFoundation() {
+    for (let x = startX; x < startX + 10; x++) {
+        for (let z = startZ; z < startZ + 8; z++) {
+            await skills.placeBlock(bot, "sandstone", x, startY, z);
+        }
+    }
+}
+
+// Function to build pillars on the corners
+async function buildPillars() {
+    // Define pillar height
+    const pillarHeight = 6;
+
+    const corners = [
+        { x: startX, z: startZ },
+        { x: startX + 9, z: startZ },
+        { x: startX, z: startZ + 7 },
+        { x: startX + 9, z: startZ + 7 }
+    ];
+
+    for (const corner of corners) {
+        for (let y = startY + 1; y < startY + pillarHeight; y++) {
+            await skills.placeBlock(bot, "chiseled_sandstone", corner.x, y, corner.z);
+        }
+    }
+}
+
+// Function to build walls of the home
+async function buildWalls() {
+    for (let x = startX + 1; x < startX + 9; x++) {
+        for (let y = startY + 1; y < startY + 4; y++) {
+            await skills.placeBlock(bot, "sandstone", x, y, startZ);
+            await skills.placeBlock(bot, "sandstone", x, y, startZ + 7);
+        }
+    }
+
+    for (let z = startZ + 1; z < startZ + 7; z++) {
+        for (let y = startY + 1; y < startY + 4; y++) {
+            await skills.placeBlock(bot, "sandstone", startX, y, z);
+            await skills.placeBlock(bot, "sandstone", startX + 9, y, z);
+        }
+    }
+}
+
+// Function to add a roof to the home
+async function buildRoof() {
+    for (let x = startX; x < startX + 10; x++) {
+        for (let z = startZ; z < startZ + 8; z++) {
+            await skills.placeBlock(bot, "sandstone", x, startY + 4, z);
+        }
+    }
+}
+
+// Function to add windows
+async function addWindows() {
+    await skills.breakBlockAt(bot, startX + 4, startY + 2, startZ);
+    await skills.breakBlockAt(bot, startX + 5, startY + 2, startZ);
+    await skills.placeBlock(bot, "glass", startX + 4, startY + 2, startZ);
+    await skills.placeBlock(bot, "glass", startX + 5, startY + 2, startZ);
+
+    await skills.breakBlockAt(bot, startX + 4, startY + 2, startZ + 7);
+    await skills.breakBlockAt(bot, startX + 5, startY + 2, startZ + 7);
+    await skills.placeBlock(bot, "glass", startX + 4, startY + 2, startZ + 7);
+    await skills.placeBlock(bot, "glass", startX + 5, startY + 2, startZ + 7);
+}
+
+// Function to add a door
+async function addDoor() {
+    await skills.breakBlockAt(bot, startX + 4, startY + 1, startZ);
+    await skills.breakBlockAt(bot, startX + 5, startY + 1, startZ);
+    await skills.placeBlock(bot, "oak_door", startX + 4, startY + 1, startZ);
+}
+
+// Main function to build the house
+async function buildHouse() {
+    await buildFoundation();
+    await buildPillars();
+    await buildWalls();
+    await buildRoof();
+    await addWindows();
+    await addDoor();
+}
+
+buildHouse();"""
+
+  {
+    role: 'user',
+    content: 'Miner_123: its almost night time, dig under ground and build a shelter to, craft and smelt with a bed sleep in'
+  },
+  {
+    role: 'assistant',
+    content: "I'll make sure to dig underground and build a proper shelter for crafting, smelting, and sleeping. Let's get it done! !newAction"
+  },
+
+
+"""
+const position = world.getPosition(bot);
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+
+// Digging a 4x5x3 space underground for the shelter using skills.breakBlockAt
+for (let x = 0; x < 4; x++) {
+  for (let y = 0; y < 3; y++) {
+    for (let z = 0; z < 5; z++) {
+      await skills.breakBlockAt(bot, startX + x, startY - y, startZ + z);
+    }
+  }
+}
+
+// Placing crafting table, furnace, and bed inside the shelter using skills.placeBlock
+await skills.placeBlock(bot, 'crafting_table', startX + 1, startY - 2, startZ);
+await skills.placeBlock(bot, 'furnace', startX + 1, startY - 2, startZ + 1);
+await skills.placeBlock(bot, 'white_bed', startX + 2, startY - 2, startZ);
+
+// Placing a wooden roof over the hole
+for (let x = 0; x < 4; x++) {
+    for (let z = 0; z < 5; z++) {
+    await skills.placeBlock(bot, 'oak_planks', startX + x, startY + 0, startZ + z);
+  }
+}
+
+// Adding a trapdoor for entry
+await skills.placeBlock(bot, 'oak_trapdoor', startX + 1, startY + 0, startZ, 'south');
+
+// Going to bed to sleep
+await skills.goToBed(bot);"""
+
+
+  {
+    role: 'user',
+    content: 'Miner_123: Check your inventory, then use those items to craft a full set of iron aromor and tools, if you require any items such as sticks craft those first, then equip all of the armor and your sword
+  },
+ {
+    role: 'assistant',
+    content: "Got it, crafting a full set of iron armor and tools. !newAction"
+  },
+
+"""
+// Check inventory
+let inventory = await world.getInventoryCounts(bot);
+
+// Craft sticks if needed
+if (inventory['stick'] < 4) {
+  await skills.craftRecipe(bot, "stick", 8);
+}
+
+// Craft iron armor pieces
+let craftedHelmet = await skills.craftItem(bot, "iron_helmet");
+let craftedChestplate = await skills.craftItem(bot, "iron_chestplate");
+let craftedLeggings = await skills.craftItem(bot, "iron_leggings");
+let craftedBoots = await skills.craftItem(bot, "iron_boots");
+
+// Craft iron tools if not already in inventory
+let craftedSword = inventory['iron_sword'] ? true : await skills.craftItem(bot, "iron_sword");
+let craftedPickaxe = inventory['iron_pickaxe'] ? true : await skills.craftItem(bot, "iron_pickaxe");
+let craftedAxe = inventory['iron_axe'] ? true : await skills.craftItem(bot, "iron_axe");
+let craftedShovel = inventory['iron_shovel'] ? true : await skills.craftItem(bot, "iron_shovel");
+
+// Equip all crafted armor
+if (craftedHelmet) await skills.equip(bot, "iron_helmet", "head");
+if (craftedChestplate) await skills.equip(bot, "iron_chestplate", "torso");
+if (craftedLeggings) await skills.equip(bot, "iron_leggings", "legs");
+if (craftedBoots) await skills.equip(bot, "iron_boots", "feet");
+
+// Equip iron sword
+if (craftedSword) await skills.equip(bot, "iron_sword", "hand");"""
+
+  {
+    role: 'user',
+    content: 'Miner_123: check your inventory, then use those blocks to create a simple house with a cobblestone floor and roof, wooden walls, a door, and use fences for windows, if you do not have something like fences, then first craft them or wood find it. Good luck!'
+  },
+  {
+    role: 'assistant',
+    content: 'Checking if I have the right materials and building a simple house with a cobblestone floor and roof, wooden walls, a door, and fences as windows, if I don't have enough materials I'll get them! !newAction!'
+  },
+
+
+]
+
+"""const position = world.getPosition(bot);
+// Step 1: Check inventory for required items
+let inventory = await world.getInventoryCounts(bot);
+
+// Required materials
+let requiredMaterials = {
+    cobblestone: 64, // For floor and roof
+    oak_planks: 64, // For walls
+    oak_fence: 4, // For windows
+    oak_door: 1, // For door
+    sticks: 6, // For crafting fences
+};
+
+// List of missing materials
+let missingMaterials = [];
+
+// Check what materials are missing
+for (let material in requiredMaterials) {
+    if (!inventory[material] || inventory[material] < requiredMaterials[material]) {
+        missingMaterials.push(material);
+    }
+}
+
+// Collect missing materials
+for (let material of missingMaterials) {
+    if (material === 'oak_fence') {
+        await skills.craftRecipe(bot, 'stick'); // Craft sticks first
+        await skills.craftRecipe(bot, 'oak_fence'); // Then craft fences
+    } else {
+        await skills.collectBlock(bot, material);
+    }
+}
+
+// Build the house
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+
+// Build the floor
+for (let x = 0; x < 5; x++) {
+  for (let z = 0; z < 5; z++) {
+        await skills.placeBlock(bot, 'cobblestone', startX + x, startY - 1, startZ + z);
+    }
+}
+
+// Build the walls with spaces for windows and door
+for (let y = 0; y < 4; y++) {
+    for (let x = 0; x < 5; x++) {
+        for (let z = 0; z < 5; z++) {
+            if (x === 0 || x === 4 || z === 0 || z === 4) { // Edge of the wall
+                if ((x === 2 && y === 2 && (z === 0 || z === 4)) ||
+                    (z === 2 && y === 2 && (x === 0 || x === 4))) {
+                    // Place fences for windows
+                    await skills.placeBlock(bot, 'oak_fence', startX + x, startY + y, startZ + z);
+                } else if (x === 2 && y === 1 && z === 0) {
+                  // Leave space for door
+                  continue;
+                } else {
+                    await skills.placeBlock(bot, 'oak_planks', startX + x, startY + y, startZ + z);
+                }
+            }
+        }
+    }
+}
+
+// Place door
+await skills.placeBlock(bot, 'oak_door', startX + 2, startY, startZ);
+
+// Build the roof
+for (let x = 0; x < 5; x++) {
+    for (let z = 0; z < 5; z++) {
+        await skills.placeBlock(bot, 'cobblestone', startX + x, startY + 4, startZ + z);
+    }
+}"""
+
+  {
+    role: 'user',
+    content: 'Miner_123: Check your inventory, see if you have enough wooden planks to build an all wooden house with a nice pyramid roof and door. if not first go get logs and then craft them into planks.'
+  },
+  {
+    role: 'assistant',
+    content: 'Checking if I have enough planks to build a house with a pyramid roof, if I don't have enough wood I'll go collect it first! !newAction!'
+  },
+
+
+"""
+const botPosition = world.getPosition(bot);
+
+async function buildWoodenHouse() {
+    let inventory = world.getInventoryCounts(bot);
+
+    // Check if there are enough wooden planks.
+    let woodenPlanks = inventory['oak_planks'] || 0;
+
+    // If not enough planks, collect additional logs and craft them into planks.
+    if (woodenPlanks < 100) {
+        await skills.collectBlock(bot, 'oak_log', 10);
+        await skills.craftRecipe(bot, 'oak_planks');
+    }
+
+    // Refresh inventory counts
+    inventory = world.getInventoryCounts(bot);
+    woodenPlanks = inventory['oak_planks'] || 0;
+
+    if (woodenPlanks < 100) {
+        log(bot,'Not enough wooden planks even after collecting logs.');
+        return;
+    }
+
+    // Coordinates for house base relative to bot's position
+    let baseX = botPosition.x + 1;
+    let baseY = botPosition.y;
+    let baseZ = botPosition.z + 1;
+
+    // Build the house base (5x5)
+    for (let x = 0; x < 5; x++) {
+        for (let z = 0; z < 5; z++) {
+            await skills.placeBlock(bot, 'oak_planks', baseX + x, baseY, baseZ + z);
+        }
+    }
+
+    // Build the walls (3 blocks high)
+    for (let y = 1; y <= 3; y++) {
+        for (let x = 0; x < 5; x++) {
+            await skills.placeBlock(bot, 'oak_planks', baseX + x, baseY + y, baseZ);
+            await skills.placeBlock(bot, 'oak_planks', baseX + x, baseY + y, baseZ + 4);
+        }
+        for (let z = 1; z < 4; z++) {
+            await skills.placeBlock(bot, 'oak_planks', baseX, baseY + y, baseZ + z);
+            await skills.placeBlock(bot, 'oak_planks', baseX + 4, baseY + y, baseZ + z);
+        }
+    }
+
+    // Craft a door
+    await skills.craftRecipe(bot, 'oak_door');
+
+    // Add a door
+    await skills.placeBlock(bot, 'oak_door', baseX + 2, baseY + 1, baseZ);
+
+    // Build the roof (pyramid-shaped)
+    for (let layer = 0; layer < 5; layer++) {
+        for (let x = layer; x < 5 - layer; x++) {
+            for (let z = layer; z < 5 - layer; z++) {
+                await skills.placeBlock(bot, 'oak_planks', baseX + x, baseY + 4 + layer, baseZ + z);
+            }
+        }
+    }
+
+    log(bot,'Wooden house with a nice roof built successfully.');
+}
+
+await buildWoodenHouse();"""
+
+  {
+    role: 'user',
+    content: "Miner_123: go mining for diamonds, you'll need an iron pick or better so check if you have one, if not see if you can craft one, if not, go collect iron and smelt it, wait to finish smelting, then craft the pick and collect diamonds."
+  },
+  {
+    role: 'assistant',
+    content: 'Sure thing, I'll start by checking if I have an iron pickaxe, and if not, I'll go through the steps to make one. Then I'll go collect diamonds! !newAction'
+  },
+,
+
+"""
+// First, let's check if I have an iron pickaxe
+let inventory = world.getInventoryCounts(bot);
+
+if (!inventory['iron_pickaxe']) {
+    // If I don't have an iron pickaxe, let's see if I can craft one
+    const craftIronPickaxe = async () => {
+        // Check if we have enough iron ingots and sticks to craft an iron pickaxe
+        if (inventory['iron_ingot'] >= 3 && inventory['stick'] >= 2) {
+            await skills.craftRecipe(bot, "iron_pickaxe");
+            return true;
+        } else {
+            // Collect and smelt iron if needed, let's start by collecting iron ore
+            await skills.collectBlock(bot, "iron_ore", 3);
+            // Smelt the collected iron ore
+            await skills.smeltItem(bot, "raw_iron", 3);
+            // Recheck inventory after smelting
+            inventory = world.getInventoryCounts(bot);
+            if (inventory['iron_ingot'] >= 3 && inventory['stick'] >= 2) {
+                await skills.craftRecipe(bot, "iron_pickaxe");
+                return true;
+            } else {
+                log(bot,"Couldn't gather enough materials to craft an iron pickaxe.");
+                return false;
+            }
+        }
+    };
+
+    // Attempt to craft the iron pickaxe
+    if (await craftIronPickaxe()) {
+        log(bot,"Successfully crafted an iron pickaxe.");
+    } else {
+        log(bot,"Failed to craft an iron pickaxe.");
+        return;
+    }
+}
+
+// Now that we have an iron pickaxe, let's go to Y-coordinate 11 and mine for diamonds
+await skills.equip(bot, "iron_pickaxe", "hand");
+
+const mineForDiamonds = async () => {
+    // Get the bot's current position
+    const currentPosition = bot.entity.position;
+
+    // Calculate the target position at Y=11
+    const targetPosition = new Vec3(currentPosition.x, 11, currentPosition.z);
+
+    // Move to the target position
+    await skills.goToPosition(bot, targetPosition);
+
+    log(bot, "Reached Y-coordinate 11. Starting to mine for diamonds.");
+
+    // Now search for diamond ore in the vicinity
+    const diamondOres = await world.getNearestBlocks(bot, ['diamond_ore'], 16, 64);
+    const diamondCount = diamondOres.length;
+
+    if (diamondCount > 0) {
+        log(bot, `Found ${diamondCount} diamond ore blocks. Collecting them all.`);
+        await skills.collectBlock(bot, "diamond_ore", diamondCount);
+        log(bot, `Successfully collected ${diamondCount} diamond ore blocks!`);
+    } else {
+        log(bot, "No diamond ore found nearby. Try exploring the area at Y=11.");
+    }
+};
+
+await mineForDiamonds();"""
+
+
+  {
+    role: 'user',
+    content: 'Miner_123: Go looking for a cave 80 blocks down'
+  },
+  {
+    role: 'assistant',
+    content: 'Alright! I'll start mining 80 blocks down underneath me, then I'll find the nearest free space, which could be a cave! !newAction'
+  },
+
+
+"""
+// First, let's equip the iron pickaxe.
+await skills.equip(bot, "iron_pickaxe", "hand");
+
+// Get the current position of the bot.
+let position = world.getPosition(bot);
+
+// Function to search for a cave
+async function searchForCave() {
+    let nearestCave = world.getNearestFreeSpace(bot, 3, 8);  // Assuming we are looking for a 2x2 space.
+    if (nearestCave) {
+        await skills.goToPosition(bot, nearestCave.x, nearestCave.y, nearestCave.z);
+        return true;
+    }
+    return false;
+}
+
+// Main loop for searching and moving
+let foundCave = false;
+for (let attempts = 0; attempts < 5; attempts++) {
+    foundCave = await searchForCave();
+    if (foundCave) break;
+
+    // If no cave found, move 16 blocks in a random direction
+    let angle = Math.random() * 2 * Math.PI;
+    let newX = position.x + Math.round(16 * Math.cos(angle));
+    let newZ = position.z + Math.round(16 * Math.sin(angle));
+    await skills.goToPosition(bot, newX, position.y, newZ);
+    position = world.getPosition(bot);
+}
+
+if (foundCave) {
+    log(bot, "Found a cave!");
+} else {
+    log(bot, "No cave found after 5 attempts. Starting to mine downwards.");
+    for (let i = 0; i < 80; i++) {
+        await skills.breakBlockAt(bot, position.x, position.y - i, position.z);
+    }
+}
+"""
+
+  {
+    role: 'user',
+    content: 'Miner_123: start a fire, check if you have a flint and steel, if not first craft one, then look for the nearest tree leaves of any kind, equip the flint and steel and ignite the leaves.'
+  },
+  {
+    role: 'assistant',
+    content: `Sure thing! I'll craft a flint and steel if needed, then activate it on the nearest leaves. !newAction`       
+  },
+
+
+"""
+// Check if I have flint and steel in inventory
+let inventory = await world.getInventoryCounts(bot);
+
+if (!inventory['flint_and_steel']) {
+  // If not, craft flint and steel
+  let success = await skills.craftRecipe(bot, 'flint_and_steel');
+  if (!success) {
+    log(bot,'Failed to craft flint and steel');
+    return;
+  }
+}
+// Lets make sure we are searching for a variety of leaf types
+const leaves = ['oak_leaves', 'birch_leaves', 'spruce_leaves', 'jungle_leaves', 'acacia_leaves', 'dark_oak_leaves'];
+
+// Now find the nearest tree leaves
+let leafBlock = await world.getNearestBlock(bot, leaves, 16);
+
+if (!leafBlock) {
+  log(bot,'No tree leaves found nearby');
+  return;
+}
+
+// Equip flint and steel
+await skills.equip(bot, 'flint_and_steel', 'hand');
+
+// Activate the flint and steel on the nearest leaves
+await skills.activateNearestBlock(bot, leaves);"""
+
+
+  {
+    role: 'user',
+    content: "Miner_123: build your new home! complete with a door, roof, torches, a bed, crafting table, furnace, chest, and outside, offset of your house a fenced off yard. when you're done building make sure you remember here 'home' and where it is so you can return !newAction" 
+  },
+  {
+    role: 'assistant',
+    content: "Going to build my home! With all the necessities plus a fenced off yard, then I'll make sure to remember the location! !newAction "
+  },
+
+"""
+const position = world.getPosition(bot);
+
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+
+// Function to build the house
+const buildHouse = async (x, y, z) => {
+    for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 5; j++) {
+            await skills.placeBlock(bot, "oak_planks", x + i, y, z + j); // Floor
+            await skills.placeBlock(bot, "oak_planks", x + i, y + 5, z + j); // Roof
+        }
+    }
+    // Walls
+    for (let i = 0; i < 5; i++) {
+        for (let j = 1; j < 5; j++) {
+            await skills.placeBlock(bot, "oak_planks", x, y + j, z + i); // West wall
+            await skills.placeBlock(bot, "oak_planks", x + 4, y + j, z + i); // East wall     
+            await skills.placeBlock(bot, "oak_planks", x + i, y + j, z); // South wall        
+            await skills.placeBlock(bot, "oak_planks", x + i, y + j, z + 4); // North wall    
+        }
+    }
+    // Entry (door)
+    await skills.placeBlock(bot, "air", x + 2, y + 1, z);
+    await skills.placeBlock(bot, "air", x + 2, y + 2, z);
+    await skills.placeBlock(bot, "oak_door", x + 2, y + 1, z);
+
+    // Interior
+    await skills.placeBlock(bot, "bed", x + 1, y + 1, z + 1);
+    await skills.placeBlock(bot, "crafting_table", x + 3, y + 1, z + 1);
+    await skills.placeBlock(bot, "furnace", x + 1, y + 1, z + 3);
+    await skills.placeBlock(bot, "chest", x + 3, y + 1, z + 3);
+
+    // Torches
+    await skills.placeBlock(bot, "wall_torch", x + 1, y + 2, z, 'side'); // Near door
+    await skills.placeBlock(bot, "wall_torch", x + 3, y + 2, z, 'side'); // Near door
+
+// Fence for yard (6 blocks offset from the house)
+let offset = 6;
+for (let i = -4; i < 10; i++) {
+    await skills.placeBlock(bot, "oak_fence", x + i, y, z - offset); // South fence       
+    await skills.placeBlock(bot, "oak_fence", x + i, y, z + 4 + offset); // North fence   
+}
+for (let i = -offset; i <= 4 + offset; i++) {
+    await skills.placeBlock(bot, "oak_fence", x - 4, y, z + i); // West fence
+    await skills.placeBlock(bot, "oak_fence", x + 9, y, z + i); // East fence
+}
+};
+
+// Execute the building process
+await buildHouse(startX, startY, startZ);
+
+// Remember the place
+let position = world.getPosition(bot);
+log(bot,`!rememberHere("home") Remembered home coordinates: x=${homePosition.x}, y=${homePosition.y}, z=${homePosition.z}`);"""
+
+
+

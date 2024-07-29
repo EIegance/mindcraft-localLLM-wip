@@ -1,0 +1,1148 @@
+build a castle with circular towers and embrasures
+"""
+let position = world.getPosition(bot);
+let castleX = position.x + 5;
+let castleY = position.y;
+let castleZ = position.z + 5;
+let radius = 5;
+let height = 10;
+
+async function buildCircle(centerX, centerY, centerZ, radius, blockType) {
+    for(let y = 0; y < height; y++) {
+        for (let angle = 0; angle < 360; angle += 10) {
+            let rad = angle * (Math.PI / 180);
+            let x = centerX + Math.round(radius * Math.cos(rad));
+            let z = centerZ + Math.round(radius * Math.sin(rad));
+            await skills.placeBlock(bot, blockType, x, centerY + y, z);
+        }
+    }
+}
+
+async function buildEmbrasures(centerX, centerY, centerZ, radius, blockType) {
+    for(let y = 1; y <= height; y += 2) {
+        for (let angle = 0; angle < 360; angle += 20) {
+            let rad = angle * (Math.PI / 180);
+            let x = centerX + Math.round((radius - 1) * Math.cos(rad));
+            let z = centerZ + Math.round((radius - 1) * Math.sin(rad));
+            await skills.breakBlockAt(bot, x, centerY + y, z);   
+        }
+    }
+}
+
+async function buildCastle() {
+    let tower1X = castleX + radius;
+    let tower1Z = castleZ + radius;
+    let tower2X = castleX + radius;
+    let tower2Z = castleZ - radius;
+    let tower3X = castleX - radius;
+    let tower3Z = castleZ + radius;
+    let tower4X = castleX - radius;
+    let tower4Z = castleZ - radius;
+
+    await buildCircle(tower1X, castleY, tower1Z, radius, "stone_bricks");
+    await buildCircle(tower2X, castleY, tower2Z, radius, "stone_bricks");
+    await buildCircle(tower3X, castleY, tower3Z, radius, "stone_bricks");
+    await buildCircle(tower4X, castleY, tower4Z, radius, "stone_bricks");
+
+    await buildEmbrasures(tower1X, castleY, tower1Z, radius, "glass");
+    await buildEmbrasures(tower2X, castleY, tower2Z, radius, "glass");
+    await buildEmbrasures(tower3X, castleY, tower3Z, radius, "glass");
+    await buildEmbrasures(tower4X, castleY, tower4Z, radius, "glass");
+}
+
+await buildCastle();"""
+
+build a pyramid that goes in by just one block on each layer
+"""
+let startPosition = world.getPosition(bot);
+let baseSize = 9;
+
+for (let y = 0; y < baseSize / 2; y++) {
+    for (let z = -baseSize / 2 + y; z <= baseSize / 2 - y; z++) {
+        for (let x = -baseSize / 2 + y; x <= baseSize / 2 - y; x++) {
+            await skills.placeBlock(bot, 'stone_bricks', startPosition.x + x, startPosition.y + y, startPosition.z + z);
+        }
+    }
+}"""
+
+dig down to bedrock
+
+"""
+const position = world.getPosition(bot);
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+
+for (let y = startY; y >= -64; y--) {
+    await skills.breakBlockAt(bot, startX, y, startZ);
+}"""
+
+Find water then build a boat.
+
+"""
+let waterPosition = world.getNearestBlock(bot, "water", 16);     
+if (waterPosition) {
+    await skills.goToPosition(bot, waterPosition.position.x, waterPosition.position.y, waterPosition.position.z);
+    let botPosition = world.getPosition(bot);
+
+    // Build the base of the boat
+    for (let dx = -2; dx <= 2; dx++) {
+        for (let dz = -2; dz <= 2; dz++) {
+            await skills.placeBlock(bot, "oak_planks", botPosition.x + dx, botPosition.y, botPosition.z + dz);
+        }
+    }
+
+    // Build the sides of the boat
+    for (let dx = -2; dx <= 2; dx++) {
+        await skills.placeBlock(bot, "oak_planks", botPosition.x + dx, botPosition.y + 1, botPosition.z + 2);
+        await skills.placeBlock(bot, "oak_planks", botPosition.x + dx, botPosition.y + 1, botPosition.z - 2);
+    }
+    for (let dz = -1; dz <= 1; dz++) {
+        await skills.placeBlock(bot, "oak_planks", botPosition.x + 2, botPosition.y + 1, botPosition.z + dz);
+        await skills.placeBlock(bot, "oak_planks", botPosition.x - 2, botPosition.y + 1, botPosition.z + dz);
+    }
+
+    // Build the front and back of the boat higher
+    for (let dx = -1; dx <= 1; dx++) {
+        await skills.placeBlock(bot, "oak_planks", botPosition.x + dx, botPosition.y + 2, botPosition.z + 2);
+        await skills.placeBlock(bot, "oak_planks", botPosition.x + dx, botPosition.y + 2, botPosition.z - 2);
+    }
+} else {
+    log(bot,"No water found nearby.");
+}"""
+
+collect coal, then return to the surface, then craft a furnace using a crafting table, then smelt the raw iron in your inventory
+"""
+// First, let me find and collect some coal
+let coalBlock = world.getNearestBlock(bot, 'coal_ore', 64);      
+if (coalBlock) {
+    await skills.collectBlock(bot, 'coal_ore', 1);
+}
+
+// Now, let's return to the surface
+let surfacePosition = { x: 1158, y: 64, z: -425 };
+await skills.goToPosition(bot, surfacePosition.x, surfacePosition.y, surfacePosition.z);
+
+// Next, crafting a furnace at the crafting table
+await skills.craftRecipe(bot, "crafting_table");
+await skills.craftRecipe(bot, "furnace");
+
+// Finally, let's smelt the raw iron in our inventory
+await skills.smeltItem(bot, "raw_iron", 8);"""
+
+
+build a wooden house with a stone foundation, a door, wooden walls, wood logs for the corner blocks, windows, and a roof made from wooden staircases
+
+"""
+const position = world.getPosition(bot);
+
+const startX = Math.floor(position.x);
+const startY = Math.floor(position.y);
+const startZ = Math.floor(position.z);
+
+const width = 7;
+const depth = 7;
+const height = 4;
+
+// Build the stone foundation
+for (let x = startX; x < startX + width; x++) {
+    for (let z = startZ; z < startZ + depth; z++) {
+        await skills.placeBlock(bot, 'stone', x, startY - 1, z);  
+    }
+}
+
+// Build the corner logs
+for (let y = startY; y < startY + height; y++) {
+    await skills.placeBlock(bot, 'oak_log', startX, y, startZ);  
+    await skills.placeBlock(bot, 'oak_log', startX + width - 1, y, startZ);
+    await skills.placeBlock(bot, 'oak_log', startX, y, startZ + depth - 1);
+    await skills.placeBlock(bot, 'oak_log', startX + width - 1, y, startZ + depth - 1);
+}
+
+// Build the wooden walls
+for (let x = startX; x < startX + width; x++) {
+    for (let y = startY; y < startY + height; y++) {
+        for (let z = startZ; z < startZ + depth; z++) {
+            if (
+                (x === startX || x === startX + width - 1 || z === startZ || z === startZ + depth - 1) &&
+                !(x === startX && z === startZ) &&
+                !(x === startX + width - 1 && z === startZ) &&   
+                !(x === startX && z === startZ + depth - 1) &&   
+                !(x === startX + width - 1 && z === startZ + depth - 1)
+            ) {
+                await skills.placeBlock(bot, 'oak_planks', x, y, z);
+            }
+        }
+    }
+}
+
+// Create space for windows (1 block gap at each side of center) 
+for (let y = startY + 2; y <= startY + 3; y++) {
+    await skills.breakBlockAt(bot, startX + Math.floor(width / 2), y, startZ);
+    await skills.breakBlockAt(bot, startX, y, startZ + Math.floor(depth / 2));
+}
+
+// Create space for door
+await skills.breakBlockAt(bot, startX + Math.floor(width / 2), startY, startZ);
+await skills.breakBlockAt(bot, startX + Math.floor(width / 2), startY + 1, startZ);
+
+// Place door
+await skills.placeBlock(bot, 'oak_door', startX + Math.floor(width / 2), startY, startZ);
+
+// Place windows
+await skills.placeBlock(bot, 'glass', startX + Math.floor(width / 2), startY + 2, startZ);
+await skills.placeBlock(bot, 'glass', startX, startY + 2, startZ + Math.floor(depth / 2));
+await skills.placeBlock(bot, 'glass', startX + Math.floor(width / 2), startY + 3, startZ);
+await skills.placeBlock(bot, 'glass', startX, startY + 3, startZ + Math.floor(depth / 2));
+
+// Build the roof
+for (let x = startX; x < startX + width; x++) {
+    for (let z = startZ; z < startZ + depth; z++) {
+        await skills.placeBlock(bot, 'oak_stairs', x, startY + height, z, 'top');
+    }
+}"""
+
+dig down 6 blocks into the ground, clear out a 6x8 room 3 blocks tall, then build an underground base
+
+"""
+const digRoom = async () => {
+  let pos = world.getPosition(bot);
+
+  // Dig down 6 blocks
+  for (let i = 0; i < 6; i++) {
+    await skills.breakBlockAt(bot, pos.x, pos.y - i, pos.z);     
+  }
+
+  pos = world.getPosition(bot);
+  const startX = pos.x;
+  const startY = pos.y - 6;
+  const startZ = pos.z;
+
+  // Clear a 6x8 room 3 blocks tall
+  for (let y = startY; y < startY + 3; y++) {
+    for (let x = startX; x < startX + 6; x++) {
+      for (let z = startZ; z < startZ + 8; z++) {
+        await skills.breakBlockAt(bot, x, y, z);
+      }
+    }
+  }
+};
+
+const buildBase = async () => {
+  await digRoom();
+
+  let pos = world.getPosition(bot);
+  const startX = pos.x;
+  const startY = pos.y - 6;
+  const startZ = pos.z;
+
+  // Build walls and floor with cobblestone
+  for (let y = startY; y < startY + 3; y++) {
+    for (let x = startX; x < startX + 6; x++) {
+      for (let z = startZ; z < startZ + 8; z++) {
+        if (x === startX || x === startX + 5 || z === startZ || z === startZ + 7 || y === startY) {
+          await skills.placeBlock(bot, "cobblestone", x, y, z); 
+        }
+      }
+    }
+  }
+
+  // Add roof with oak planks
+  for (let x = startX; x < startX + 6; x++) {
+    for (let z = startZ; z < startZ + 8; z++) {
+      await skills.placeBlock(bot, "oak_planks", x, startY + 3, z);
+    }
+  }
+};
+
+buildBase();"""
+
+
+Build a wizards towner with a cone shaped roof (bad)
+
+"""
+const position = world.getPosition(bot);
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+const radius = 5;
+const height = 10;
+
+// Build the tower bottom
+for (let y = startY; y < startY + height; y++) {
+  for (let x = startX - radius; x <= startX + radius; x++) {     
+    for (let z = startZ - radius; z <= startZ + radius; z++) {   
+      if ((x - startX) ** 2 + (z - startZ) ** 2 <= radius ** 2) {
+        await skills.placeBlock(bot, 'stone_bricks', x, y, z);   
+      }
+    }
+  }
+}
+
+// Build the cone shaped roof
+for (let y = 0; y < radius; y++) {
+  let r = radius - y;
+  for (let x = startX - r; x <= startX + r; x++) {
+    for (let z = startZ - r; z <= startZ + r; z++) {
+      if ((x - startX) ** 2 + (z - startZ) ** 2 <= r ** 2) {     
+        await skills.placeBlock(bot, 'spruce_planks', x, startY + height + y, z);
+      }
+    }
+  }
+}"""
+
+dig out a circular quarry in the ground down to bedrock
+
+"""
+const radius = 10;
+const depth = 64; // Assuming the current y level is roughly around sea level.
+
+const position = world.getPosition(bot);
+const centerX = position.x;
+const startY = position.y;
+const centerZ = position.z;
+
+for (let y = startY; y > startY - depth; y--) {
+    for (let x = -radius; x <= radius; x++) {
+        for (let z = -radius; z <= radius; z++) {
+            if (x * x + z * z <= radius * radius) {
+                await skills.breakBlockAt(bot, centerX + x, y, centerZ + z);
+            }
+        }
+    }
+}"""
+
+build a very large mansion, it should have a stone foundation, slopped roof, multiple glass windows, doors, torches, and multiple rooms
+
+"""
+const position = world.getPosition(bot);
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+const width = 20;
+const depth = 20;
+const height = 10;
+
+// Foundation
+for (let x = startX; x < startX + width; x++) {
+    for (let z = startZ; z < startZ + depth; z++) {
+        await skills.placeBlock(bot, 'stone', x, startY, z);
+    }
+}
+
+// Walls
+for (let y = startY + 1; y <= startY + height; y++) {
+    for (let x = startX; x < startX + width; x++) {
+        await skills.placeBlock(bot, 'stone_bricks', x, y, startZ);
+        await skills.placeBlock(bot, 'stone_bricks', x, y, startZ + depth - 1);
+    }
+    for (let z = startZ; z < startZ + depth; z++) {
+        await skills.placeBlock(bot, 'stone_bricks', startX, y, z);
+        await skills.placeBlock(bot, 'stone_bricks', startX + width - 1, y, z);
+    }
+}
+
+// Roof
+const roofHeight = 5;
+for (let r = 0; r < roofHeight; r++) {
+    for (let x = startX - r; x < startX + width + r; x++) {
+        for (let z = startZ - r; z < startZ + depth + r; z++) {
+            await skills.placeBlock(bot, 'oak_stairs', x, startY + height + r, z);
+        }
+    }
+}
+
+// Windows and Doors
+for (let y = startY + 2; y <= startY + height - 1; y += 3) {
+    for (let x = startX + 1; x < startX + width - 1; x += 4) {
+        await skills.placeBlock(bot, 'glass', x, y, startZ);
+        await skills.placeBlock(bot, 'glass', x, y, startZ + depth - 1);
+        await skills.placeBlock(bot, 'glass', x, y + 1, startZ);
+        await skills.placeBlock(bot, 'glass', x, y + 1, startZ + depth - 1);
+    }
+    for (let z = startZ + 1; z < startZ + depth - 1; z += 4) {
+        await skills.placeBlock(bot, 'glass', startX, y, z);
+        await skills.placeBlock(bot, 'glass', startX + width - 1, y, z);
+        await skills.placeBlock(bot, 'glass', startX, y + 1, z);
+        await skills.placeBlock(bot, 'glass', startX + width - 1, y + 1, z);
+    }
+}
+
+// Place some doors and torches
+await skills.placeBlock(bot, 'oak_door', startX + (width / 2), startY + 1, startZ);
+await skills.placeBlock(bot, 'oak_door', startX + (width / 2), startY + 2, startZ);
+
+await skills.placeBlock(bot, 'torch', startX + 1, startY + 2, startZ + 1);
+await skills.placeBlock(bot, 'torch', startX + width - 2, startY + 2, startZ + 1);
+await skills.placeBlock(bot, 'torch', startX + 1, startY + 2, startZ + depth - 2);
+await skills.placeBlock(bot, 'torch', startX + width - 2, startY + 2, startZ + depth - 2);
+
+// Interior Walls for multiple rooms
+for (let x = startX + 3; x < startX + width - 3; x += 5) {
+    for (let y = startY + 1; y <= startY + height - 1; y++) {
+        for (let z = startZ + 1; z < startZ + depth - 1; z++) {
+            await skills.placeBlock(bot, 'stone_bricks', x, y, z);
+        }
+    }
+}
+for (let z = startZ + 3; z < startZ + depth - 3; z += 5) {
+    for (let y = startY + 1; y <= startY + height - 1; y++) {
+        for (let x = startX + 1; x < startX + width - 1; x++) {
+            await skills.placeBlock(bot, 'stone_bricks', x, y, z);
+        }
+    }
+}
+
+log(bot,'Large mansion completed!');"""
+
+til the ground around you to create a farm, then surround it with fences
+
+"""
+const position = world.getPosition(bot);
+const startX = position.x - 5;
+const startY = position.y;
+const startZ = position.z - 5;
+const endX = position.x + 5;
+const endZ = position.z + 5;
+
+// Till the ground and plant seeds
+for (let x = startX; x <= endX; x++) {
+    for (let z = startZ; z <= endZ; z++) {
+        await skills.tillAndSow(bot, x, startY - 1, z, 'wheat_seeds');
+    }
+}
+
+// Surround the farm with oak fences
+for (let x = startX - 1; x <= endX + 1; x++) {
+    await skills.placeBlock(bot, 'oak_fence', x, startY, startZ - 1);
+    await skills.placeBlock(bot, 'oak_fence', x, startY, endZ + 1);
+}
+for (let z = startZ; z <= endZ; z++) {
+    await skills.placeBlock(bot, 'oak_fence', startX - 1, startY, z);
+    await skills.placeBlock(bot, 'oak_fence', endX + 1, startY, z);
+}"""
+
+create a farm by tilling the ground beneath you, then surround it with fences
+
+"""
+const position = world.getPosition(bot);
+
+// Define farm size
+const farmWidth = 9;
+const farmHeight = 9;
+const startX = position.x - Math.floor(farmWidth / 2);
+const startZ = position.z - Math.floor(farmHeight / 2);
+
+for (let x = startX; x < startX + farmWidth; x++) {
+    for (let z = startZ; z < startZ + farmHeight; z++) {
+        await skills.tillAndSow(bot, x, position.y - 1, z);  // Till the ground
+    }
+}
+
+// Surround with fences
+for (let x = startX - 1; x <= startX + farmWidth; x++) {
+    await skills.placeBlock(bot, "oak_fence", x, position.y, startZ - 1);
+    await skills.placeBlock(bot, "oak_fence", x, position.y, startZ + farmHeight);
+}
+for (let z = startZ; z < startZ + farmHeight; z++) {
+    await skills.placeBlock(bot, "oak_fence", startX - 1, position.y, z);
+    await skills.placeBlock(bot, "oak_fence", startX + farmWidth, position.y, z);
+}"""
+
+build a castle with 4 circular towers for the corners, a courtyard and embrasures
+
+"""
+const radius = 5;
+const towerHeight = 10;
+const wallHeight = 7;
+
+const buildTower = async (bot, centerX, centerZ) => {
+    // Build a circular tower
+    for (let y = 0; y < towerHeight; y++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+            for (let dz = -radius; dz <= radius; dz++) {
+                if (dx*dx + dz*dz <= radius*radius) {
+                    await skills.placeBlock(bot, 'stone_bricks', centerX + dx, bot.entity.position.y + y, centerZ + dz);
+                }
+            }
+        }
+    }
+};
+
+const buildWall = async (bot, startX, startZ, endX, endZ) => {
+    // Build walls between towers
+    const lengthX = endX - startX;
+    const lengthZ = endZ - startZ;
+    for (let y = 0; y < wallHeight; y++) {
+        for (let i = 0; i <= Math.max(Math.abs(lengthX), Math.abs(lengthZ)); i++) {  
+            const x = startX + (lengthX !== 0 ? i * Math.sign(lengthX) : 0);
+            const z = startZ + (lengthZ !== 0 ? i * Math.sign(lengthZ) : 0);
+            await skills.placeBlock(bot, 'stone_bricks', x, bot.entity.position.y + y, z);
+        }
+    }
+};
+
+const buildEmbrasures = async (bot, startX, startZ, endX, endZ) => {
+    // Add embrasures to walls
+    const lengthX = endX - startX;
+    const lengthZ = endZ - startZ;
+    for (let i = 0; i <= Math.max(Math.abs(lengthX), Math.abs(lengthZ)); i += 2) {   
+        const x = startX + (lengthX !== 0 ? i * Math.sign(lengthX) : 0);
+        const z = startZ + (lengthZ !== 0 ? i * Math.sign(lengthZ) : 0);
+        await skills.placeBlock(bot, 'air', x, bot.entity.position.y + 4, z);        
+    }
+};
+
+const buildCastle = async (bot) => {
+    let position = world.getPosition(bot);
+    const baseX = position.x;
+    const baseZ = position.z;
+
+    await buildTower(bot, baseX - 15, baseZ - 15);
+    await buildTower(bot, baseX + 15, baseZ - 15);
+    await buildTower(bot, baseX - 15, baseZ + 15);
+    await buildTower(bot, baseX + 15, baseZ + 15);
+
+    await buildWall(bot, baseX - 15 + radius, baseZ - 15, baseX + 15 - radius, baseZ - 15);
+    await buildWall(bot, baseX - 15 + radius, baseZ + 15, baseX + 15 - radius, baseZ + 15);
+    await buildWall(bot, baseX - 15, baseZ - 15 + radius, baseX - 15, baseZ + 15 - radius);
+    await buildWall(bot, baseX + 15, baseZ - 15 + radius, baseX + 15, baseZ + 15 - radius);
+
+    await buildEmbrasures(bot, baseX - 15 + radius, baseZ - 15, baseX + 15 - radius, baseZ - 15);
+    await buildEmbrasures(bot, baseX - 15 + radius, baseZ + 15, baseX + 15 - radius, baseZ + 15);
+    await buildEmbrasures(bot, baseX - 15, baseZ - 15 + radius, baseX - 15, baseZ + 15 - radius);
+    await buildEmbrasures(bot, baseX + 15, baseZ - 15 + radius, baseX + 15, baseZ + 15 - radius);
+};
+
+await buildCastle(bot);"""
+
+build a giant skyscraper with each floor having accessable apartment rooms, and a cone shaped tower roof
+
+"""
+const position = world.getPosition(bot);
+
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+const width = 20;
+const depth = 20;
+const height = 80;
+const floors = 10; // 8 blocks per floor including ceiling
+const apartmentSize = 4; // 4x4 rooms
+const hallwayWidth = 2; // 2 blocks wide central hallway
+
+// Build the skyscraper frame out of stone bricks
+for (let x = startX; x < startX + width; x++) {
+    for (let z = startZ; z < startZ + depth; z++) {
+        for (let y = startY; y < startY + height; y++) {
+            // Exterior walls
+            if (x === startX || x === startX + width - 1 || z === startZ || z === startZ + depth - 1 || y === startY || y === startY + height - 1) {
+                await skills.placeBlock(bot, 'stone_bricks', x, y, z);
+            }
+
+            // Floors and ceilings
+            if (y % 8 === 0) {
+                await skills.placeBlock(bot, 'stone_bricks', x, y, z);
+            }
+        }
+    }
+}
+
+// Create apartments and hallway inside each floor
+for (let floor = 0; floor < floors; floor++) {
+    for (let y = startY + (floor * 8); y < startY + (floor * 8) + 8; y++) {
+        for (let x = startX + 1; x < startX + width - 1; x++) {
+            for (let z = startZ + 1; z < startZ + depth - 1; z++) {
+                // Hallway
+                if (z >= startZ + (depth / 2) - (hallwayWidth / 2) && z < startZ + (depth / 2) + (hallwayWidth / 2)) {
+                    await skills.placeBlock(bot, 'air', x, y, z);
+                }
+                // Apartments
+                else if ((x - startX - 1) % apartmentSize !== 0 && (z - startZ - 1) % apartmentSize !== 0 && y % 8 !== 0 && y % 8 !== 7) {
+                    await skills.placeBlock(bot, 'air', x, y, z);
+                }
+                // Room walls
+                else if (y % 8 !== 0 && y % 8 !== 7) {
+                    await skills.placeBlock(bot, 'stone_bricks', x, y, z);
+                }
+                // Doors
+                if ((z === startZ + (depth / 2) - (hallwayWidth / 2) - 1 || z === startZ + (depth / 2) + (hallwayWidth / 2)) && (x - startX - 1) % apartmentSize === 0 && y % 8 === 3) {
+                    await skills.placeBlock(bot, 'air', x, y, z);
+                    await skills.placeBlock(bot, 'air', x, y + 1, z);
+                    await skills.placeBlock(bot, 'oak_door', x, y, z);
+                }
+            }
+        }
+    }
+}
+
+// Build cone-shaped roof with blocks reducing in size
+for (let i = 0; i < width / 2; i++) {
+    for (let x = startX + i; x < startX + width - i; x++) {
+        for (let z = startZ + i; z < startZ + depth - i; z++) {
+            await skills.placeBlock(bot, 'stone_bricks', x, startY + height + i, z); 
+        }
+    }
+}"""
+
+build a camp site with logs to sit on and a fire in the middle
+
+"""
+let position = world.getPosition(bot);
+
+// Clear the area
+for (let x = position.x - 3; x <= position.x + 3; x++) {
+    for (let z = position.z - 3; z <= position.z + 3; z++) {
+        await skills.breakBlockAt(bot, x, position.y, z);
+    }
+}
+
+// Place logs around the campfire
+await skills.placeBlock(bot, 'oak_log', position.x + 2, position.y, position.z);     
+await skills.placeBlock(bot, 'oak_log', position.x - 2, position.y, position.z);     
+await skills.placeBlock(bot, 'oak_log', position.x, position.y, position.z + 2);     
+await skills.placeBlock(bot, 'oak_log', position.x, position.y, position.z - 2);     
+
+// Place the campfire in the middle
+await skills.placeBlock(bot, 'campfire', position.x, position.y, position.z);"""
+
+build a bridge 35 blocks long west
+
+"""
+let startPos = world.getPosition(bot);
+let length = 35;
+let y = startPos.y;
+let z = startPos.z;
+
+for (let i = 0; i < length; i++) {
+    await skills.placeBlock(bot, 'oak_planks', startPos.x - i, y, z);
+    await skills.placeBlock(bot, 'oak_fence', startPos.x - i, y + 1, z - 1);
+    await skills.placeBlock(bot, 'oak_fence', startPos.x - i, y + 1, z + 1);
+}"""
+
+build a nether portal then use a flint and steel to light it
+
+"""
+// Constructing the Nether portal frame
+const position = world.getPosition(bot);
+const baseX = Math.floor(position.x);
+const baseY = Math.floor(position.y);
+const baseZ = Math.floor(position.z);
+
+for (let y = 0; y < 5; y++) {
+    if (y === 0 || y === 4) {
+        for (let x = 0; x < 4; x++) {
+            await skills.placeBlock(bot, 'obsidian', baseX - 2 + x, baseY + y, baseZ);
+        }
+    } else {
+        await skills.placeBlock(bot, 'obsidian', baseX - 2, baseY + y, baseZ);       
+        await skills.placeBlock(bot, 'obsidian', baseX + 1, baseY + y, baseZ);       
+    }
+}
+
+// Light the portal with flint and steel
+await skills.equip(bot, 'flint_and_steel', 'hand');
+await skills.placeBlock(bot, 'flint_and_steel', baseX, baseY + 1, baseZ);"""
+
+dig a 10x10x3 room
+
+"""
+const position = world.getPosition(bot);
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+const width = 10;
+const height = 3;
+const depth = 10;
+
+for (let x = startX; x < startX + width; x++) {
+    for (let y = startY; y > startY - height; y--) {
+        for (let z = startZ; z < startZ + depth; z++) {
+            await skills.breakBlockAt(bot, x, y, z);
+        }
+    }
+}"""
+
+collect 8 coal and 4 iron, then bring them back to the surface, then craft a chest, place it and store your items inside
+
+"""
+// Step 1: Collect 8 coal
+await skills.collectBlock(bot, 'coal_ore', 8);
+
+// Step 2: Collect 4 iron ores
+await skills.collectBlock(bot, 'raw_iron', 4);
+
+// Step 3: Move back to the surface
+let surfacePosition = { x: 1310, y: 70, z: -376 };
+await skills.goToPosition(bot, surfacePosition.x, surfacePosition.y, surfacePosition.z);
+
+// Step 4: Craft a chest
+await skills.craftItem(bot, 'chest');
+
+// Step 5: Place the chest
+await skills.placeBlock(bot, 'chest', surfacePosition.x + 1, surfacePosition.y, surfacePosition.z);
+
+await skills.giveToPlayer(bot, 'coal', playerName, 8);
+await skills.giveToPlayer(bot, 'raw_iron', playerName, 4);"""
+
+build a wooden house, with a door, windows, wood logs in the corners, and a slopped roof
+
+"""
+const position = world.getPosition(bot);
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+const width = 7;
+const depth = 7;
+const height = 4;
+
+// Build the wooden house
+async function buildHouse() {
+    // Create corners with oak logs
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+            for (let z = 0; z < depth; z++) {
+                if ((x === 0 || x === width - 1) && (z === 0 || z === depth - 1)) {   
+                    await skills.placeBlock(bot, 'oak_log', startX + x, startY + y, startZ + z);
+                }
+            }
+        }
+    }
+
+    // Create walls with oak planks and add windows
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+            for (let z = 0; z < depth; z++) {
+                if (x === 0 || x === width - 1 || z === 0 || z === depth - 1) {       
+                    if (y === 1 && (z === 2 || z === 4) && x !== 0 && x !== width - 1) {
+                        await skills.placeBlock(bot, 'glass', startX + x, startY + y, startZ + z);
+                    } else if (!((x === 0 || x === width - 1) && (z === 0 || z === depth - 1))) {
+                        await skills.placeBlock(bot, 'oak_planks', startX + x, startY + y, startZ + z);
+                    }
+                }
+            }
+        }
+    }
+
+    // Create door
+    await skills.placeBlock(bot, 'oak_door', startX + Math.floor(width / 2), startY, startZ);
+
+    // Create sloped roof
+    for (let layer = 0; layer < 3; layer++) {
+        for (let x = layer; x < width - layer; x++) {
+            for (let z = layer; z < depth - layer; z++) {
+                await skills.placeBlock(bot, 'oak_stairs', startX + x, startY + height + layer, startZ + z);
+            }
+         }
+     }
+}
+
+await buildHouse();"""
+
+craft a full set of iron armor
+
+"""
+// Equip the bot with the iron ingots required for crafting
+await skills.equip(bot, "iron_ingot", "hand");
+
+// Craft the armor components
+await skills.craftRecipe(bot, "iron_helmet");
+await skills.craftRecipe(bot, "iron_chestplate");
+await skills.craftRecipe(bot, "iron_leggings");
+await skills.craftRecipe(bot, "iron_boots");"""
+
+pillar up and place a torch at the top.
+
+let pos = world.getPosition(bot);
+for (let i = 0; i < 12; i++) { // Pillar up 12 blocks
+    await skills.placeBlock(bot, 'oak_log', pos.x, pos.y + i, pos.z);
+}
+await skills.placeBlock(bot, 'torch', pos.x, pos.y + 12, pos.z, 'top');"""
+
+build a rollercoaster with rails, the rollercoaster can only step up one block to keep it functional, try also adding some turns
+
+"""
+let baseX = 1222;
+let baseY = 72;
+let baseZ = -504;
+
+async function buildStraightSection(bot, length) {
+    for (let i = 0; i < length; i++) {
+        await skills.placeBlock(bot, 'oak_planks', baseX + i, baseY, baseZ);
+        await skills.placeBlock(bot, 'rail', baseX + i, baseY + 1, baseZ);
+    }
+    baseX += length;
+}
+
+async function buildTurn(bot, direction) {
+    const turn = direction === 'left' ? [-1, 1] : [1, 1];
+
+    await skills.placeBlock(bot, 'oak_planks', baseX, baseY, baseZ + turn[0]);
+    await skills.placeBlock(bot, 'rail', baseX, baseY + 1, baseZ + turn[0]);
+
+    await skills.placeBlock(bot, 'oak_planks', baseX + turn[1], baseY, baseZ + turn[0]);
+    await skills.placeBlock(bot, 'rail', baseX + turn[1], baseY + 1, baseZ + turn[0]);
+
+    baseX += turn[1];
+    baseZ += turn[0];
+}
+
+async function buildUpSlope(bot, steps) {
+    for (let i = 0; i < steps; i++) {
+        await skills.placeBlock(bot, 'oak_planks', baseX, baseY, baseZ + i);
+        await skills.placeBlock(bot, 'oak_planks', baseX, baseY + 1 + i, baseZ + i);
+        await skills.placeBlock(bot, 'rail', baseX, baseY + 2 + i, baseZ + i);
+    }
+    baseZ += steps;
+    baseY += steps;
+}
+
+async function buildRollerCoaster(bot) {
+    await buildStraightSection(bot, 20);
+    await buildUpSlope(bot, 5);
+    await buildTurn(bot, 'left');
+    await buildStraightSection(bot, 10);
+    await buildTurn(bot, 'right');
+    await buildUpSlope(bot, 5);
+    await buildStraightSection(bot, 15);
+}
+
+await buildRollerCoaster(bot);"""
+
+build a 3x3x3 block of tnt then ignite it with a redstone torch
+
+"""
+let position = world.getPosition(bot);
+let startX = position.x;
+let startY = position.y;
+let startZ = position.z;
+
+// Build the 3x3x3 TNT structure
+for (let x = 0; x < 3; x++) {
+  for (let y = 0; y < 3; y++) {
+    for (let z = 0; z < 3; z++) {
+      await skills.placeBlock(bot, 'tnt', startX + x, startY + y, startZ + z);
+    }
+  }
+}
+
+// Place a redstone torch next to the TNT structure to ignite it
+await skills.placeBlock(bot, 'redstone_torch', startX - 1, startY + 1, startZ);"""
+
+
+build up 30 blocks, then build a floating island using an upside down cone shape for the base, and a tree ontop
+
+"""// Building up 30 blocks
+let pos = world.getPosition(bot);
+
+for (let i = 0; i < 30; i++) {
+    await skills.placeBlock(bot, 'oak_planks', pos.x, pos.y + i, pos.z);
+}
+
+// Building the floating island using an upside-down cone shape
+let baseHeight = pos.y + 30;
+let islandHeight = 5;
+
+for (let y = 0; y < islandHeight; y++) {
+    let layerWidth = islandHeight - y;
+    for (let x = -layerWidth; x <= layerWidth; x++) {
+        for (let z = -layerWidth; z <= layerWidth; z++) {
+            await skills.placeBlock(bot, 'dirt', pos.x + x, baseHeight + y, pos.z + z);
+        }
+    }
+}
+
+// Planting a tree on top of the floating island
+let treeY = baseHeight + islandHeight;
+await skills.placeBlock(bot, 'oak_log', pos.x, treeY, pos.z);
+await skills.placeBlock(bot, 'oak_log', pos.x, treeY + 1, pos.z);
+await skills.placeBlock(bot, 'oak_log', pos.x, treeY + 2, pos.z);
+await skills.placeBlock(bot, 'oak_log', pos.x, treeY + 3, pos.z);
+
+// Adding leaves
+let leafOffsets = [
+    [-1, 3, 0], [1, 3, 0], [0, 3, -1], [0, 3, 1],
+    [-1, 4, 0], [1, 4, 0], [0, 4, -1], [0, 4, 1],
+    [0, 4, 0], [-1, 4, -1], [1, 4, 1], [-1, 4, 1], [1, 4, -1],
+    [-1, 5, 0], [1, 5, 0], [0, 5, -1], [0, 5, 1],
+    [0, 5, 0],
+];
+
+for (let offset of leafOffsets) {
+    await skills.placeBlock(bot, 'oak_leaves', pos.x + offset[0], treeY + offset[1], pos.z + offset[2]);
+}"""
+
+build a roman-style building with columns spapced 1 block apart, it should have a base and a roof, be creative be decorative!
+
+"""
+let baseX = 1200;
+let baseY = 72;
+let baseZ = -500;
+let height = 5;
+let width = 7;
+let depth = 7;
+
+// Build the base
+for (let x = 0; x < width; x++) {
+  for (let z = 0; z < depth; z++) {
+    await skills.placeBlock(bot, 'stone', baseX + x, baseY, baseZ + z);
+  }
+}
+
+// Build the columns
+for (let x = 0; x < width; x += 2) {
+  for (let z = 0; z < depth; z += 2) {
+    for (let y = 1; y <= height; y++) {
+      await skills.placeBlock(bot, 'stone_brick_wall', baseX + x, baseY + y, baseZ + z);
+    }
+  }
+}
+
+// Build the roof
+for (let x = 0; x < width; x++) {
+  for (let z = 0; z < depth; z++) {
+    await skills.placeBlock(bot, 'stone', baseX + x, baseY + height + 1, baseZ + z);
+  }
+}
+
+// Add decorations
+for (let x = 0; x < width; x++) {
+  await skills.placeBlock(bot, 'sandstone', baseX + x, baseY + height + 2, baseZ);
+  await skills.placeBlock(bot, 'sandstone', baseX + x, baseY + height + 2, baseZ + depth - 1);
+}
+for (let z = 0; z < depth; z++) {
+  await skills.placeBlock(bot, 'sandstone', baseX, baseY + height + 2, baseZ + z);
+  await skills.placeBlock(bot, 'sandstone', baseX + width - 1, baseY + height + 2, baseZ + z);
+}"""
+
+build a castle. it should have walls, doors, torches, towers, crenellations, and staircases.
+
+"""
+let pos = world.getPosition(bot);
+
+// Define the castle dimensions
+const castleWidth = 10;
+const castleDepth = 10;
+const wallHeight = 5;
+const towerHeight = 7;
+const towerRadius = 2;
+
+// Function to place a block
+async function placeBlock(type, x, y, z) {
+  await skills.placeBlock(bot, type, x, y, z);
+}
+
+// Build the castle walls
+async function buildWalls() {
+  for (let x = pos.x; x < pos.x + castleWidth; x++) {
+    for (let y = pos.y; y < pos.y + wallHeight; y++) {
+      await placeBlock("stone_bricks", x, y, pos.z);
+      await placeBlock("stone_bricks", x, y, pos.z + castleDepth - 1);
+    }
+  }
+
+  for (let z = pos.z; z < pos.z + castleDepth; z++) {
+    for (let y = pos.y; y < pos.y + wallHeight; y++) {
+      await placeBlock("stone_bricks", pos.x, y, z);
+      await placeBlock("stone_bricks", pos.x + castleWidth - 1, y, z);
+    }
+  }
+}
+
+// Build the towers
+async function buildTowers() {
+  const towerPositions = [
+    { x: pos.x, z: pos.z },
+    { x: pos.x + castleWidth - 1, z: pos.z },
+    { x: pos.x, z: pos.z + castleDepth - 1 },
+    { x: pos.x + castleWidth - 1, z: pos.z + castleDepth - 1 }
+  ];
+
+  for (let tower of towerPositions) {
+    for (let dx = -towerRadius; dx <= towerRadius; dx++) {
+      for (let dz = -towerRadius; dz <= towerRadius; dz++) {
+        for (let y = pos.y; y < pos.y + towerHeight; y++) {
+          const distance = Math.sqrt(dx * dx + dz * dz);
+          if (distance <= towerRadius) {
+            await placeBlock("stone_bricks", tower.x + dx, y, tower.z + dz);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Build the crenellations
+async function buildCrenellations() {
+  for (let x = pos.x; x < pos.x + castleWidth; x++) {
+    if ((x - pos.x) % 2 === 0) {
+      await placeBlock("stone_brick_wall", x, pos.y + wallHeight, pos.z);
+      await placeBlock("stone_brick_wall", x, pos.y + wallHeight, pos.z + castleDepth - 1);
+    }
+  }
+
+  for (let z = pos.z; z < pos.z + castleDepth; z++) {
+    if ((z - pos.z) % 2 === 0) {
+      await placeBlock("stone_brick_wall", pos.x, pos.y + wallHeight, z);
+      await placeBlock("stone_brick_wall", pos.x + castleWidth - 1, pos.y + wallHeight, z);
+    }
+  }
+}
+
+// Add doors and torches
+async function addDecorations() {
+  await placeBlock("oak_door", pos.x + Math.floor(castleWidth / 2), pos.y, pos.z);
+  await skills.placeBlock(bot, "torch", pos.x + castleWidth / 2, pos.y + 3, pos.z - 1, "side");      
+}
+
+// Build the staircases inside the towers
+async function buildStaircases() {
+  const towerCorners = [
+    { x: pos.x + 1, z: pos.z + 1 },
+    { x: pos.x + castleWidth - 2, z: pos.z + 1 },
+    { x: pos.x + 1, z: pos.z + castleDepth - 2 },
+    { x: pos.x + castleWidth - 2, z: pos.z + castleDepth - 2 }
+  ];
+
+  for (let corner of towerCorners) {
+    for (let y = pos.y; y < pos.y + towerHeight; y++) {
+      await placeBlock("oak_stairs", corner.x, y, corner.z++);
+    }
+  }
+}
+
+// Build each part of the castle
+async function buildCastle() {
+  await buildWalls();
+  await buildTowers();
+  await buildCrenellations();
+  await addDecorations();
+  await buildStaircases();
+}
+
+buildCastle();"""
+
+build a redstone lamp with a trail of redstone controlled by a lever
+
+"""
+let position = world.getPosition(bot);
+let lampX = position.x + 1;
+let lampY = position.y;
+let lampZ = position.z;
+let leverX = lampX;
+let leverY = lampY;
+let leverZ = lampZ - 1;
+
+// Place the redstone lamp
+await skills.placeBlock(bot, 'redstone_lamp', lampX, lampY, lampZ);
+
+// Place the lever one block away from the lamp
+await skills.placeBlock(bot, 'lever', leverX, leverY, leverZ);
+
+// Place redstone wires to connect the lever to the lamp
+for (let i = 1; i <= 5; i++) {
+    await skills.placeBlock(bot, 'redstone_wire', lampX, lampY, lampZ - i);
+}"""
+
+build a spherical glass dome
+
+"""
+async function buildGlassDome(bot) {
+    const radius = 5;  // Radius of the dome.
+    const position = await world.getPosition(bot);  // Get current position.
+    const centerX = position.x;
+    const centerY = position.y + radius;
+    const centerZ = position.z;
+
+    for (let x = -radius; x <= radius; x++) {
+        for (let y = -radius; y <= radius; y++) {
+            for (let z = -radius; z <= radius; z++) {
+                if (x * x + y * y + z * z <= radius * radius) {
+                    await skills.placeBlock(bot, "glass", centerX + x, centerY + y, centerZ + z);    
+                }
+            }
+        }
+    }
+}
+
+await buildGlassDome(bot);"""
+
+build a very large mansion, it should have a stone foundation with wooden walls, slopped block roof, multiple glass windows, doors, torches, and multiple rooms
+
+"""
+const position = world.getPosition(bot);
+const startX = position.x;
+const startY = position.y;
+const startZ = position.z;
+const width = 20;
+const depth = 20;
+const height = 10;
+
+// Build the stone foundation
+for (let x = startX; x < startX + width; x++) {
+    for (let y = startY; y < startY + 2; y++) {
+        for (let z = startZ; z < startZ + depth; z++) {
+            await skills.placeBlock(bot, 'stone', x, y, z);
+        }
+    }
+}
+
+// Build the wooden walls
+for (let x = startX; x < startX + width; x++) {
+    for (let y = startY + 2; y < startY + height; y++) {
+        for (let z = startZ; z < startZ + depth; z++) {
+            // Leave space for windows and doors
+            if ((x === startX || x === startX + width - 1 || z === startZ || z === startZ + depth - 1)
+                && !(y > startY + 2 && y < startY + 5 && (x === startX+2 || x === startX + width - 3) ) // windows
+                && !(y > startY + 2 && y < startY + 5 && (z === startZ+2 || z === startZ + depth - 3)) // windows
+                && !(x === startX + Math.floor(width / 2) && z === startZ && y < startY + 4)) { // door
+                await skills.placeBlock(bot, 'oak_planks', x, y, z);
+            }
+        }
+    }
+}
+
+// Add glass windows
+for (let x = startX + 2; x < startX + width - 2; x += 2) {
+    for (let y = startY + 2; y < startY + 5; y++) {
+        if (world.isClearPath(bot, {x, y, z: startZ}) ) {
+            await skills.placeBlock(bot, 'glass', x, y, startZ);
+            await skills.placeBlock(bot, 'glass', x, y, startZ + depth - 1);
+        }
+    }
+}
+for (let z = startZ + 2; z < startZ + depth - 2; z += 2) {
+    for (let y = startY + 2; y < startY + 5; y++) {
+        if (world.isClearPath(bot, {x: startX, y, z}) ) {
+            await skills.placeBlock(bot, 'glass', startX, y, z);
+            await skills.placeBlock(bot, 'glass', startX + width - 1, y, z);
+         }
+    }
+}
+
+// Build the sloped block roof
+for (let layer = 0; layer < Math.floor((width < depth ? width : depth) / 2); layer++) {
+    for (let x = startX + layer; x < startX + width - layer; x++) {
+        for (let z = startZ + layer; z < startZ + depth - layer; z++) {
+            await skills.placeBlock(bot, 'stone', x, startY + height + layer, z);
+        }
+    }
+}
+
+// Place doors
+await skills.placeBlock(bot, 'oak_door', startX + Math.floor(width / 2), startY + 3, startZ, 'north');
+
+// Add torches
+await skills.placeBlock(bot, 'torch', startX + 1, startY + 3, startZ + 1, 'side');
+await skills.placeBlock(bot, 'torch', startX + width - 2, startY + 3, startZ + 1, 'side');
+await skills.placeBlock(bot, 'torch', startX + 1, startY + 3, startZ + depth - 2, 'side');
+await skills.placeBlock(bot, 'torch', startX + width - 2, startY + 3, startZ + depth - 2, 'side');   
+
+// Multiple rooms in mansion (simple walls inside)
+for(let x = startX + 5; x < startX + width - 5; x++) {
+    await skills.placeBlock(bot, 'oak_planks', x, startY + 2, startZ + Math.floor(depth / 2));       
+    await skills.placeBlock(bot, 'oak_planks', x, startY + 3, startZ + Math.floor(depth / 2));       
+}
+
+// Add doors to rooms
+await skills.placeBlock(bot, 'oak_door', startX + Math.floor(width / 2), startY + 2, startZ + Math.floor(depth / 2), 'west');"""
