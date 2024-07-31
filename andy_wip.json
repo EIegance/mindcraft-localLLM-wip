@@ -22,7 +22,7 @@
         "item_collecting": true,
         "torch_placing": false,
         "idle_staring": true,
-        "cheat": true
+        "cheat": false
     },
 
     "conversation_examples": [

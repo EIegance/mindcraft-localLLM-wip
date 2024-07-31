@@ -11,8 +11,8 @@ import settings from '../../settings.js';
 
 
 export class Agent {
-    async start(profile_fp, load_mem=false, init_message=null) {
-        this.prompter = new Prompter(this, profile_fp);
+    async start(profile_fp, load_mem=false, init_message=null, Logger=null) {
+        this.prompter = new Prompter(this, profile_fp, Logger);
         this.name = this.prompter.getName();
         this.history = new History(this);
         this.coder = new Coder(this);
@@ -93,6 +93,10 @@ export class Agent {
         let used_command = false;
 
         let self_prompt = source === 'system' || source === this.name;
+    
+        if (this.prompter.logger) {
+            this.prompter.logger.logConsole([{role: source, content: message}]);
+        }
 
         if (!self_prompt) {
             const user_command_name = containsCommand(message);

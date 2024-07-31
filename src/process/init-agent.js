@@ -3,7 +3,7 @@ import yargs from 'yargs';
 
 const args = process.argv.slice(2);
 if (args.length < 1) {
-    console.log('Usage: node init_agent.js <agent_name> [profile] [load_memory] [init_message]');
+    console.log('Usage: node init_agent.js <agent_name> [profile] [load_memory] [init_message] [enableLogger]');
     process.exit(1);
 }
 
@@ -22,6 +22,11 @@ const argv = yargs(args)
         alias: 'm',
         type: 'string',
         description: 'automatically prompt the agent on startup'
+    })
+    .option('enableLogger', {
+        alias: 'log',
+        type: 'boolean',
+        description: 'enable logging'
     }).argv
 
-new Agent().start(argv.profile, argv.load_memory, argv.init_message);
+new Agent().start(argv.profile, argv.load_memory, argv.init_message, argv.Logger);

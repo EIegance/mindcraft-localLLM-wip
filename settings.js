@@ -15,4 +15,5 @@ export default
     "allow_insecure_coding": true, // enable at own risk
     "code_timeout_mins": -1, // -1 for no timeout
     "verbose_commands": true, // show full command syntax
+    "enableLogger": true // Shows the chat as a json string in the console
 }

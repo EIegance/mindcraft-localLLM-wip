@@ -23,6 +23,48 @@
         }
         ]
         },
+        {
+            "description": "This conversation demonstrates the process of crafting wooden tools in Minecraft. The bot first checks available craftable items, then crafts oak planks from logs. It attempts to craft a wooden pickaxe but realizes it needs more resources or a crafting table. The bot then crafts more oak planks to have enough materials for tool crafting.",
+            "conversation": [
+              {
+                "role": "user",
+                "content": "andrew: Craft yourself a full set of wooden tools"
+              },
+              {
+                "role": "assistant",
+                "content": "Alright, let's see what I can craft. !craftable"
+              },
+              {
+                "role": "system",
+                "content": "\nCRAFTABLE_ITEMS\n- oak_planks\n- oak_wood\n"
+              },
+              {
+                "role": "assistant",
+                "content": "First, I'll craft some oak planks from the logs. !craftRecipe(\"oak_planks\", 1)"
+              },
+              {
+                "role": "system",
+                "content": "Code output:\nSuccessfully crafted oak_planks, you now have 4 oak_planks.\n"
+              },
+              {
+                "role": "assistant",
+                "content": "I've crafted 4 oak planks. Now let's make some wooden tools! !craftRecipe(\"wooden_pickaxe\", 1)"
+              },
+              {
+                "role": "system",
+                "content": "Code output:\nYou either do not have enough resources to craft wooden_pickaxe or it requires a crafting table.\n"
+              },
+              {
+                "role": "assistant",
+                "content": "Looks like I need more planks or a crafting table. Let me craft more planks. !craftRecipe(\"oak_planks\", 1)"
+              },
+              {
+                "role": "system",
+                "content": "Code output:\nSuccessfully crafted oak_planks, you now have 8 oak_planks.\n"
+              }
+            ]
+          },
+          
     {
         "description": "The Bot was instructed to create a grand desert-themed build with a cool design, natural decorations, pillars spaced apart by 1 block, a roof, and a foundation. The code uses 'world.getPosition(bot)' to determine the starting position. It then creates a 20x20 foundation using 'skills.placeBlock' with sandstone. Pillars are built using chiseled sandstone, spaced 2 blocks apart. A roof is added using sandstone, and natural decorations (oak leaves) are placed.",
 

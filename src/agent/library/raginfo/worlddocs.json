@@ -1,0 +1,110 @@
+{
+    "world": [
+    {
+    "functionName": "getNearestFreeSpace",
+    "description": "Get the nearest empty space with solid blocks beneath it of the given size.",
+    "parameters": "@param {Bot} bot - The bot to get the nearest free space for.\n@param {number} size - The (size x size) of the space to find, default 1.\n@param {number} distance - The maximum distance to search, default 8.",
+    "returns": "@returns {Vec3} - The south west corner position of the nearest free space.",
+    "example": "@example\nlet position = world.getNearestFreeSpace(bot, 1, 8);"
+    },
+
+
+    {
+    "functionName": "getNearestBlocks",
+    "description": "Get a list of the nearest blocks of the given types.",
+    "parameters": "@param {Bot} bot - The bot to get the nearest block for.\n@param {string[]} block_types - The names of the blocks to search for.\n@param {number} distance - The maximum distance to search, default 16.\n@param {number} count - The maximum number of blocks to find, default 10000.",
+    "returns": "@returns {Block[]} - The nearest blocks of the given type.",
+    "example": "@example\nlet woodBlocks = world.getNearestBlocks(bot, ['oak_log', 'birch_log'], 16, 1);"
+    },
+
+
+
+    {
+    "functionName": "getNearbyEntities",
+    "description": "Retrieves a list of all entities within a specified radius around the bot."
+    },
+
+    {
+    "functionName": "getNearestEntityWhere",
+    "description": "Finds the nearest entity that satisfies a given predicate within a specified maximum distance from the bot."
+    },
+
+
+    {
+    "functionName": "getNearbyPlayers",
+    "description": "Retrieves a sorted list of nearby players within a specified distance from the bot, excluding the bot itself."
+    },
+
+
+    {
+    "functionName": "getInventoryStacks",
+    "description": "Returns an array of non-null item stacks from the bot's inventory."
+    },
+
+
+    {
+    "functionName": "getInventoryCounts",
+    "description": "Get an object representing the bot's inventory.",
+    "parameters": "@param {Bot} bot - The bot to get the inventory for.",
+    "returns": "@returns {object} - An object with item names as keys and counts as values.",
+    "example": "@example\nlet inventory = world.getInventoryCounts(bot);\nlet oakLogCount = inventory['oak_log'];\nlet hasWoodenPickaxe = inventory['wooden_pickaxe'] > 0;"
+    },
+
+
+    {
+    "functionName": "getPosition",
+    "description": "Get your position in the world (Note that y is vertical). Use this typically when begining a build.",
+    "parameters": "@param {Bot} bot - The bot to get the position for.",
+    "returns": "@returns {Vec3} - An object with x, y, and x attributes representing the position of the bot.",
+    "example": "@example\nlet position = world.getPosition(bot);\nlet x = position.x;"
+    },
+
+
+    {
+    "functionName": "getNearbyEntityTypes",
+    "description": "Get a list of all nearby mob types.",
+    "parameters": "@param {Bot} bot - The bot to get nearby mobs for.",
+    "returns": "@returns {string[]} - A list of all nearby mobs.",
+    "example": "@example\nlet mobs = world.getNearbyEntityTypes(bot);"
+    },
+
+    {
+    "functionName": "getNearbyPlayerNames",
+    "description": "Get a list of all nearby player names.",
+    "parameters": "@param {Bot} bot - The bot to get nearby players for.",
+    "returns": "@returns {string[]} - A list of all nearby players.",
+    "example": "@example\nlet players = world.getNearbyPlayerNames(bot);"
+    },
+      
+
+    {
+    "functionName": "getNearbyBlockTypes",
+    "description": "Get a list of all nearby block names.",
+    "parameters": "@param {Bot} bot - The bot to get nearby blocks for.\n@param {number} distance - The maximum distance to search, default 16.",
+    "returns": "@returns {string[]} - A list of all nearby blocks.",
+    "example": "@example\nlet blocks = world.getNearbyBlockTypes(bot);"
+    },
+
+    {
+    "functionName": "isClearPath",
+    "description": "Check if there is a path to the target that requires no digging or placing blocks.",
+    "parameters": "@param {Bot} bot - The bot to get the path for.\n@param {Entity} target - The target to path to.",
+    "returns": "@returns {boolean} - True if there is a clear path, false otherwise.",
+    "example": ""
+    },
+      
+
+    {
+    "functionName": "shouldPlaceTorch",
+    "description": "Determines if a torch should be placed based on the bot's torch placing mode, nearby torches, and inventory."
+    },
+
+    {
+    "functionName": "getBiomeName",
+    "description": "Get the name of the biome the bot is in.",
+    "parameters": "@param {Bot} bot - The bot to get the biome for.",
+    "returns": "@returns {string} - The name of the biome.",
+    "example": "@example\nlet biome = world.getBiomeName(bot);"
+    }
+    ]
+}

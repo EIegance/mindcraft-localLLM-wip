@@ -4,6 +4,8 @@ import { getCommandDocs } from './commands/index.js';
 import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
+import Logger from './logger.js';
+
 
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
@@ -18,6 +20,8 @@ export class Prompter {
         this.profile = JSON.parse(readFileSync(fp, 'utf8'));
         this.convo_examples = null;
         this.coding_examples = null;
+        this.logger = Logger ? new Logger() : null;
+        this.messageLog = []; // Initialize messageLog here
 
         let name = this.profile.name;
         let chat = this.profile.model;
@@ -159,12 +163,18 @@ export class Prompter {
     async promptConvo(messages) {
         let prompt = this.profile.conversing;
         prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
+        if (this.logger) {
+            this.logger.logConsole(messages);
+        } // Add this line to log the full conversation
         return await this.chat_model.sendRequest(messages, prompt);
     }
 
     async promptCoding(messages) {
         let prompt = this.profile.coding;
         prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
+        if (this.logger) {
+            this.logger.logConsole(messages);
+        } // Add this line to log the full conversation
         return await this.chat_model.sendRequest(messages, prompt);
     }
 
@@ -177,11 +187,16 @@ export class Prompter {
     async promptGoalSetting(messages, last_goals) {
         let system_message = this.profile.goal_setting;
         system_message = await this.replaceStrings(system_message, messages);
+        
 
         let user_message = 'Use the below info to determine what goal to target next\n\n';
         user_message += '$LAST_GOALS\n$STATS\n$INVENTORY\n$CONVO'
         user_message = await this.replaceStrings(user_message, messages, null, null, null, last_goals);
         let user_messages = [{role: 'user', content: user_message}];
+
+        if (this.logger) {
+            this.logger.logConsole(messages);
+        } // Add this line to log the full conversation
 
         let res = await this.chat_model.sendRequest(user_messages, system_message);
 
@@ -200,3 +215,12 @@ export class Prompter {
         return goal;
     }
 }
+        
+    
+
+
+    
+
+    
+    
+    

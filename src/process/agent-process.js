@@ -1,14 +1,13 @@
 import { spawn } from 'child_process';
 
 export class AgentProcess {
-    start(profile, load_memory=false, init_message=null) {
-        let args = ['src/process/init-agent.js', this.name];
+    start(profile, load_memory=false, init_message=null, Logger) {
+        let args = ['src/process/init-agent.js', this.name, profile, load_memory, init_message, Logger];
         args.push('-p', profile);
         if (load_memory)
             args.push('-l', load_memory);
         if (init_message)
             args.push('-m', init_message);
-
         const agentProcess = spawn('node', args, {
             stdio: 'inherit',
             stderr: 'inherit',
